@@ -10,6 +10,16 @@ module Tokenizer.Keywords
     , orderBy
     , ascending 
     , descending
+    , union 
+    , intersect 
+    , all 
+    , left 
+    , right 
+    , inner 
+    , outer 
+    , natural
+    , join 
+    , on
     , Parser
     , InputStream 
     , TokenStream
@@ -47,6 +57,8 @@ data Token
     | Inner
     | Outer 
     | Natural
+    | Join
+    | On
 
 select :: Parser
 select = do 
@@ -146,3 +158,13 @@ natural :: Parser
 natural = do 
     _ <- S.string "NATURAL"
     pure [ Natural ]
+
+join :: Parser 
+join = do 
+    _ <- S.string "JOIN"
+    pure [ Join ]
+
+on :: Parser 
+on = do 
+    _ <- S.string "ON"
+    pure [ On ]
