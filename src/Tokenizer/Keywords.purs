@@ -29,114 +29,115 @@ import Text.Parsing.Parser.String as S
 import Data.Array as A
 import Data.List as L
 
-import Tokenizer.Tokens ( Parser, Token(..) )
+import Tokenizer.Tokens ( TokenParser, Token(..) )
+import Tokenizer.Utilities as U
 
 
-select :: Parser
+select :: TokenParser
 select = do 
-    _ <- S.string "SELECT"
-    pure [Select]
+    _ <- U.caseInsensitive "SELECT"
+    pure Select
 
-from :: Parser
+from :: TokenParser
 from = do
-    _ <- S.string "FROM"
-    pure [ From ]
+    _ <- U.caseInsensitive "FROM"
+    pure From
 
-where_ :: Parser 
+where_ :: TokenParser 
 where_ = do
-    _ <- S.string "WHERE"
-    pure [ Where ]
+    _ <- U.caseInsensitive "WHERE"
+    pure Where
 
-groupBy :: Parser 
+groupBy :: TokenParser 
 groupBy = do 
-    _ <- S.string "GROUP"
+    _ <- U.caseInsensitive "GROUP"
     S.skipSpaces
-    _ <- S.string "BY"
-    pure [ GroupBy ]
+    _ <- U.caseInsensitive "BY"
+    pure GroupBy
 
-having :: Parser
+having :: TokenParser
 having = do 
-    _ <- S.string "HAVING"
-    pure [ Having ]
+    _ <- U.caseInsensitive "HAVING"
+    pure Having
 
-in_ :: Parser
+in_ :: TokenParser
 in_ = do 
-    _ <- S.string "IN"
-    pure [ In ]
+    _ <- U.caseInsensitive "IN"
+    pure In
 
-distinct :: Parser
+distinct :: TokenParser
 distinct = do 
-    _ <- S.string "DISTINCT"
-    pure [ Distinct ]
+    _ <- U.caseInsensitive "DISTINCT"
+    pure Distinct
 
-limit :: Parser
+limit :: TokenParser
 limit = do 
-    _ <- S.string "LIMIT"
-    pure [ Limit ]
+    _ <- U.caseInsensitive "LIMIT"
+    pure Limit
 
-orderBy :: Parser
+orderBy :: TokenParser
 orderBy = do 
-    _ <- S.string "ORDER"
+    _ <- U.caseInsensitive "ORDER"
     S.skipSpaces
-    _ <- S.string "BY"
-    pure [ OrderBy ]
+    _ <- U.caseInsensitive "BY"
+    pure OrderBy
 
-ascending :: Parser 
+ascending :: TokenParser 
 ascending = do 
-    _ <- S.string "ASC"
-    pure [ Ascending ]
+    _ <- U.caseInsensitive "ASC"
+    pure Ascending
 
-descending :: Parser
+descending :: TokenParser
 descending = do 
-    _ <- S.string "DESC"
-    pure [ Descending ]
+    _ <- U.caseInsensitive "DESC"
+    pure Descending
 
-union :: Parser 
+union :: TokenParser 
 union = do
-    _ <- S.string "UNION"
-    pure [ Union ]
+    _ <- U.caseInsensitive "UNION"
+    pure Union
 
-intersect :: Parser 
+intersect :: TokenParser 
 intersect = do 
-    _ <- S.string "INTERSECT"
-    pure [ Intersect ]
+    _ <- U.caseInsensitive "INTERSECT"
+    pure Intersect
 
-all :: Parser 
+all :: TokenParser 
 all = do 
-    _ <- S.string "ALL"
-    pure [ All ]
+    _ <- U.caseInsensitive "ALL"
+    pure All
 
-left :: Parser 
+left :: TokenParser 
 left = do 
-    _ <- S.string "LEFT"
-    pure [ Left ]
+    _ <- U.caseInsensitive "LEFT"
+    pure Left
 
-right :: Parser 
+right :: TokenParser 
 right = do 
-    _ <- S.string "RIGHT"
-    pure [ Right ]
+    _ <- U.caseInsensitive "RIGHT"
+    pure Right
 
-inner :: Parser 
+inner :: TokenParser 
 inner = do 
-    _ <- S.string "INNER"
-    pure [ Inner ]
+    _ <- U.caseInsensitive "INNER"
+    pure Inner
 
-outer :: Parser 
+outer :: TokenParser 
 outer = do 
-    _ <- S.string "OUTER"
-    pure [ Outer ] 
+    _ <- U.caseInsensitive "OUTER"
+    pure Outer
 
-natural :: Parser 
+natural :: TokenParser 
 natural = do 
-    _ <- S.string "NATURAL"
-    pure [ Natural ]
+    _ <- U.caseInsensitive "NATURAL"
+    pure Natural
 
-join :: Parser 
+join :: TokenParser 
 join = do 
-    _ <- S.string "JOIN"
-    pure [ Join ]
+    _ <- U.caseInsensitive "JOIN"
+    pure Join
 
-on :: Parser 
+on :: TokenParser 
 on = do 
-    _ <- S.string "ON"
-    pure [ On ]
+    _ <- U.caseInsensitive "ON"
+    pure On

@@ -1,6 +1,6 @@
 module Tokenizer.KeywordOperators 
-    ( join
-    ) where
+    {-( join
+    )-} where
 
 import Prelude
 import Text.Parsing.Parser.Combinators as C
@@ -13,7 +13,7 @@ import Control.Alt ((<|>))
 import Tokenizer.Keywords as K
 import Tokenizer.Tokens ( Parser, Token(..) )
 
-      
+    {-
 join :: Parser 
 join = do 
     join_ <- outerJoin <|> innerJoin <|> naturalJoin 
@@ -58,3 +58,4 @@ intersect = do
     intersect_ <- K.intersect 
     duplicates <- C.option [ Distinct ] (K.all <|> K.distinct )
     pure $ intersect_ <> duplicates
+-}

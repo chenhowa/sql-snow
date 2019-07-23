@@ -1,5 +1,9 @@
 module Tokenizer.Operators
     ( plus
+    , minus 
+    , multiply 
+    , floatDivide 
+    , modulo
 
     ) where 
 
@@ -11,29 +15,29 @@ import Data.Array as A
 import Data.List as L
 import Control.Alt ((<|>))
 
-import Tokenizer.Tokens ( Parser, Token(..) )
+import Tokenizer.Tokens ( TokenParser, Token(..) )
 
-plus :: Parser 
+plus :: TokenParser 
 plus = do 
     _ <- S.string "+"
-    pure $ [Plus]
+    pure $ Plus
 
-minus :: Parser 
+minus :: TokenParser 
 minus = do 
     _ <- S.string "-"
-    pure $ [ Minus ]
+    pure $  Minus 
 
-multiply :: Parser 
+multiply :: TokenParser 
 multiply = do 
     _ <- S.string "*"
-    pure $ [ Multiply ]
+    pure $  Multiply 
 
-floatDivide :: Parser 
+floatDivide :: TokenParser 
 floatDivide = do 
     _ <- S.string "/"
-    pure $ [ FloatDivide ]
+    pure $  FloatDivide 
 
-modulo :: Parser 
+modulo :: TokenParser 
 modulo = do 
     _ <- S.string "%"
-    pure $ [ Modulo ]
+    pure $  Modulo 

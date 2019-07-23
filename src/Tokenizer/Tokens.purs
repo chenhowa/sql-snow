@@ -1,5 +1,6 @@
 module Tokenizer.Tokens
     ( Parser
+    , TokenParser
     , InputStream 
     , TokenStream
     , Token(..)
@@ -9,6 +10,7 @@ import Text.Parsing.Parser as P
 
 
 type Parser = P.Parser InputStream TokenStream
+type TokenParser = P.Parser InputStream Token
 type InputStream = String
 type TokenStream = Array Token
 
