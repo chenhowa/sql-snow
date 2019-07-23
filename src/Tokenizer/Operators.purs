@@ -1,6 +1,7 @@
-module Tokenizer.Operators 
-    ( join
-    ) where
+module Tokenizer.Operators
+    ( plus
+
+    ) where 
 
 import Prelude
 import Text.Parsing.Parser.Combinators as C
@@ -10,32 +11,29 @@ import Data.Array as A
 import Data.List as L
 import Control.Alt ((<|>))
 
-import Tokenizer.Keywords as K
-import Tokenizer.Keywords ( Parser)
+import Tokenizer.Tokens ( Parser, Token(..) )
 
-      
-join :: Parser 
-join = do 
-    join_ <- outerJoin <|> innerJoin <|> naturalJoin 
-    pure join_
+plus :: Parser 
+plus = do 
+    _ <- S.string "+"
+    pure $ [Plus]
 
-outerJoin :: Parser
-outerJoin = do 
-    direction_ <- C.option [] direction
-    out <- K.outer
-    join <- K.join
-    pure $ direction_ <> out
+minus :: Parser 
+minus = do 
+    _ <- S.string "-"
+    pure $ [ Minus ]
 
-    where direction = (K.left <|> K.right)
+multiply :: Parser 
+multiply = do 
+    _ <- S.string "*"
+    pure $ [ Multiply ]
 
-innerJoin :: Parser 
-innerJoin = do 
-    inner <- K.inner
-    join <- K.join
-    pure $ inner <> join
+floatDivide :: Parser 
+floatDivide = do 
+    _ <- S.string "/"
+    pure $ [ FloatDivide ]
 
-naturalJoin :: Parser 
-naturalJoin = do 
-    natural <- K.natural 
-    join <- K.join 
-    pure $ natural <> join
+modulo :: Parser 
+modulo = do 
+    _ <- S.string "%"
+    pure $ [ Modulo ]

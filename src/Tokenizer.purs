@@ -11,7 +11,7 @@ import Data.Array as A
 import Data.List as L
 
 import Tokenizer.Keywords as Keywords
-import Tokenizer.Keywords (InputStream, TokenStream, Token(..), Parser)
+import Tokenizer.Tokens (InputStream, TokenStream, Token(..), Parser)
 
 
 

@@ -20,10 +20,6 @@ module Tokenizer.Keywords
     , natural
     , join 
     , on
-    , Parser
-    , InputStream 
-    , TokenStream
-    , Token(..)
     ) where 
 
 import Prelude
@@ -33,32 +29,8 @@ import Text.Parsing.Parser.String as S
 import Data.Array as A
 import Data.List as L
 
-type Parser = P.Parser InputStream TokenStream
-type InputStream = String
-type TokenStream = Array Token
+import Tokenizer.Tokens ( Parser, Token(..) )
 
-data Token
-    = Select
-    | From
-    | Where
-    | GroupBy
-    | Having
-    | In 
-    | Distinct 
-    | Limit 
-    | OrderBy
-    | Ascending
-    | Descending
-    | Union
-    | Intersect
-    | All
-    | Left 
-    | Right 
-    | Inner
-    | Outer 
-    | Natural
-    | Join
-    | On
 
 select :: Parser
 select = do 
