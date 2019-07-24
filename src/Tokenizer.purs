@@ -12,15 +12,16 @@ import Data.Array as A
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
 import Data.List as L
+import Data.Maybe (Maybe(..))
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser.Combinators (try)
 import Text.Parsing.Parser.Combinators as C
 import Text.Parsing.Parser.String as S
+import Tokenizer.Identifiers as I
 import Tokenizer.Keywords as K
 import Tokenizer.Operators as O
 import Tokenizer.Tokens (TokenParser, InputStream, TokenStream, Token(..), Parser)
 import Tokenizer.Utilities as U
-import Data.Maybe(Maybe(..))
 
 
 tokenize :: InputStream -> Either P.ParseError TokenStream
@@ -42,29 +43,29 @@ tokens = do
         pure t))
     t <- C.optionMaybe (try token)  -- We need to use optionMaybe with try, because if the parse fails but consumes no input, 
     case t of                       -- what result is extracted into t? Nothing can be. Therefore the try basically is ignored,
-        Nothing -> do               -- and the parse is regarded as having failed.
-            S.eof
-            pure $ A.concat [ts]
-        Just last -> do 
+        Nothing -> do               -- and the parse is regarded as having failed. Also, note that this section relies on
+            S.eof                   -- 'maximum munch' being used. For example, if the input was "inner", but "in" was parsed before 
+            pure $ A.concat [ts]    -- "inner", then "in" would match, and the parse for the EOF would fail, so the whole parse 
+        Just last -> do             -- would fail.
             S.eof
             pure $ A.concat [ts, [last]]
 
 token :: TokenParser
 token = 
-    let parsers = A.concat
-            [
-                [ K.distinct 
+    let parsers = A.concat   -- these parsers have been ordered intentionally so that the "maximum munch" principle holds.
+            [ joinParsers    -- that is, given the text "inner"m "inner" should be parsed instead of "in", so the `Inner` parser comes first.
+            , setOpParsers   -- It would be nice if there were a better way to enforce 'maximum munch' (i.e., programmatically'), but 
+            ,    [ K.distinct   -- it doesn't appear that there is such a way. I may have to revisit this in the future.
                 , K.limit 
-                , K.all 
+                , K.all
+                , K.in_
                 ]
-            , joinParsers
             , operatorParsers
             , orderParsers 
             , groupParsers
-            , setOpParsers
             , selectParsers
             ]
-    in foldr (<|>) K.in_ (try <$> parsers)
+    in foldr (<|>) I.identifier (try <$> parsers) -- identifier is intentionally last, since the earlier ones are higher in priority and need to match first
 
     where 
         joinParsers :: Array TokenParser 

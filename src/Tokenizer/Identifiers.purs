@@ -24,8 +24,8 @@ import Data.Maybe (Maybe(..))
 
 identifier :: TokenParser
 identifier = do 
-    first <- S.char
-    remaining <- A.many C.try do 
+    first <- PT.letter
+    remaining <- A.many $ C.try do 
         an <- C.optionMaybe $ C.try PT.alphaNum 
         res <- case an of 
             Just c -> pure c
