@@ -46,6 +46,12 @@ data Token
     | Modulo
     | As
     | Identifier String
+    | Constant String
+    | RightParen
+    | LeftParen
+    | Comma
+    | LineComment String
+    | BlockComment String
 
 derive instance genericToken :: Generic Token _
 instance showToken :: Show Token where 

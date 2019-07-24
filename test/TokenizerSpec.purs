@@ -15,6 +15,26 @@ import Data.Either as Either
 spec :: Spec Unit
 spec = describe "Testing tokenizer" do
     describe "individual token parsing" do
+        describe "comments" do
+            describe "line" do 
+                let comment = "  whatever it takes "
+                it "followed by newline" do 
+                    T.runToken ("--" <> comment <> "\n") `shouldEqual` (Either.Right $ LineComment comment)
+                it "followed by eof" do
+                    T.runToken ("--" <> comment) `shouldEqual` (Either.Right $ LineComment comment)
+            it "block" do 
+                let comment = "  part  \n of \n   a \t healthy"
+                T.runToken ("/*" <> comment <> "*/") `shouldEqual` (Either.Right $ BlockComment comment)
+        describe "punctuation" do 
+            it "left parentheses" do 
+                T.runToken "(" `shouldEqual` (Either.Right $ LeftParen)
+            it "right parentheses" do 
+                T.runToken ")" `shouldEqual` (Either.Right $ RightParen)
+            it "comma" do 
+                T.runToken "," `shouldEqual` (Either.Right Comma)
+        describe "constants" do 
+            it "decimal without commas" do
+                (T.runToken "5") `shouldEqual` (Either.Right $ Constant "5")
         describe "identifiers" do 
             it "letters" do 
                 (T.runToken "hello") `shouldEqual` (Either.Right $ Identifier "hello")
@@ -23,7 +43,10 @@ spec = describe "Testing tokenizer" do
             it "letters, numbers, and underscores" do 
                 (T.runToken "he8_8o_") `shouldEqual` (Either.Right $ Identifier "he8_8o_")
             it "rejects identifiers that don't start with a letter" do 
-                (T.runToken "_hello") `shouldSatisfy` isError
+                (T.tokenize "_hello") `shouldSatisfy` isError
+                (T.tokenize "1hello") `shouldSatisfy` isError
+            it "rejects identifiers with special characters" do 
+                (T.tokenize "he$lo") `shouldSatisfy` isError
         describe "keywords" do 
             it "select" do 
                 (T.runToken "select") `shouldEqual` (Either.Right Select)
@@ -70,7 +93,7 @@ spec = describe "Testing tokenizer" do
     describe "all tokens together" do 
         it "keyword tokens" do 
             let input = "SELECT FROM WHERE GROUP BY HAVING IN DISTINCT LIMIT ORDER BY ASC DESC UNION INTERSECT ALL LEFT RIGHT" <>
-                        " INNER OUTER NATURAL JOIN ON"
+                        " INNER OUTER NATURAL JOIN ON iDenTifier"
                 result = T.tokenize input
             result `shouldEqual` Either.Right
                     [ Select
@@ -94,6 +117,7 @@ spec = describe "Testing tokenizer" do
                     , Natural
                     , Join
                     , On
+                    , Identifier "iDenTifier"
                     ]
         it "allows whitespace at the beginning and end" do
             let input = "  SELECT FROM WHERE GROUP BY   "

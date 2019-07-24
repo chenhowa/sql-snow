@@ -60,10 +60,17 @@ token =
                 , K.all
                 , K.in_
                 ]
-            , operatorParsers
             , orderParsers 
             , groupParsers
             , selectParsers
+            ,   [ I.constant
+                , I.leftParen 
+                , I.rightParen
+                , I.comma
+                , I.lineComment
+                , I.blockComment
+                ]
+            , operatorParsers
             ]
     in foldr (<|>) I.identifier (try <$> parsers) -- identifier is intentionally last, since the earlier ones are higher in priority and need to match first
 
