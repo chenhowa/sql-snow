@@ -6,8 +6,11 @@ module Tokenizer.Tokens
     , Token(..)
     ) where 
 
+import Prelude
 import Text.Parsing.Parser as P
-
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
+import Data.Generic.Rep.Eq (genericEq)
 
 type Parser = P.Parser InputStream TokenStream
 type TokenParser = P.Parser InputStream Token
@@ -41,3 +44,10 @@ data Token
     | Multiply
     | FloatDivide
     | Modulo
+    | As
+
+derive instance genericToken :: Generic Token _
+instance showToken :: Show Token where 
+    show = genericShow
+instance eqToken :: Eq Token where 
+    eq = genericEq

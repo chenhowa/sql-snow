@@ -20,21 +20,29 @@ module Tokenizer.Keywords
     , natural
     , join 
     , on
+    , runKeyword
     ) where 
 
 import Prelude
-import Text.Parsing.Parser.Combinators as C
-import Text.Parsing.Parser as P
-import Text.Parsing.Parser.String as S
+
 import Data.Array as A
+import Data.Either as E
 import Data.List as L
-
-import Tokenizer.Tokens ( TokenParser, Token(..) )
+import Text.Parsing.Parser as P
+import Text.Parsing.Parser.Combinators as C
+import Text.Parsing.Parser.String as S
+import Tokenizer.Tokens (TokenParser, Token(..))
 import Tokenizer.Utilities as U
+import Data.Identity
 
+
+runKeyword :: String -> TokenParser -> E.Either P.ParseError Token
+runKeyword str parser = 
+    let Identity r = P.runParserT str parser
+    in r
 
 select :: TokenParser
-select = do 
+select = do
     _ <- U.caseInsensitive "SELECT"
     pure Select
 
@@ -141,3 +149,8 @@ on :: TokenParser
 on = do 
     _ <- U.caseInsensitive "ON"
     pure On
+
+as :: TokenParser 
+as = do 
+    _ <- U.caseInsensitive "AS"
+    pure As
