@@ -20,7 +20,7 @@ spec = describe "Testing tokenizer" do
         describe "subquery" do 
             it "mix of keywords, identifiers, and constants" do 
                 --P.runParserT "(SELECT hello 5 )" T.subQuery `shouldEqual` Identity (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
-               T.tokenize "(SELECT hello 5 )" `shouldEqual` (Either.Right $ 
+                T.tokenize "(SELECT hello 5 )" `shouldEqual` (Either.Right $ 
                                     [ LeftParen
                                     , Select, WhiteSpace
                                     , Identifier "hello", WhiteSpace
