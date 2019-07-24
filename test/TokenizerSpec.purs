@@ -10,11 +10,21 @@ import Tokenizer as T
 import Tokenizer.Tokens (Token(..))
 import Tokenizer.Keywords as K
 import Data.Either as Either
+import Data.Identity
+
+import Text.Parsing.Parser as P
+import Tokenizer.Identifiers as I
 
 
 spec :: Spec Unit
 spec = describe "Testing tokenizer" do
     describe "individual token parsing" do
+        describe "function" do 
+            it "with one arg" do 
+                T.tokenize "COUNT(sid)" `shouldEqual` (Either.Right $ [Identifier "COUNT", LeftParen, Identifier "sid", RightParen])
+            it "with two args" do 
+                T.tokenize "COUNT(  sid  , bid )" `shouldEqual` (Either.Right $ 
+                                            [ Identifier "COUNT", LeftParen, Identifier "sid", Identifier "bid", RightParen])
         describe "comments" do
             describe "line" do 
                 let comment = "  whatever it takes "

@@ -38,17 +38,28 @@ tokens :: Parser
 tokens = do 
     S.skipSpaces
     ts <- (A.many (try do
-        t <- token
+        tArray <- actualTokens
         U.skipSpaces   -- discards required whitespace between tokens
-        pure t))
-    t <- C.optionMaybe (try token)  -- We need to use optionMaybe with try, because if the parse fails but consumes no input, 
+        pure tArray))
+    let flatTs = A.concat ts 
+    t <- C.optionMaybe (try actualTokens)  -- We need to use optionMaybe with try, because if the parse fails but consumes no input, 
     case t of                       -- what result is extracted into t? Nothing can be. Therefore the try basically is ignored,
         Nothing -> do               -- and the parse is regarded as having failed. Also, note that this section relies on
             S.eof                   -- 'maximum munch' being used. For example, if the input was "inner", but "in" was parsed before 
-            pure $ A.concat [ts]    -- "inner", then "in" would match, and the parse for the EOF would fail, so the whole parse 
+            pure $ A.concat [flatTs]    -- "inner", then "in" would match, and the parse for the EOF would fail, so the whole parse 
         Just last -> do             -- would fail.
             S.eof
-            pure $ A.concat [ts, [last]]
+            pure $ A.concat [flatTs, last]
+
+    where actualTokens = do
+                maybeFunction <- C.optionMaybe <<< try $ I.function
+                tArray <- case maybeFunction of
+                    Just fn -> pure fn
+                    Nothing -> do 
+                        t <- token
+                        pure [t]
+                pure tArray
+
 
 token :: TokenParser
 token = 
