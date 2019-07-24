@@ -6,7 +6,7 @@ module Tokenizer.Identifiers
     , comma
     , lineComment
     , blockComment
-    , function
+    , functionArg
     ) where 
 
 import Data.Identity
@@ -76,20 +76,6 @@ blockComment = do
     _ <- S.string "/*"
     chars <- C.manyTill S.anyChar (S.string "*/")
     pure <<< BlockComment <<< fromCharArray $ (A.fromFoldable chars)
-
-function :: Parser
-function = do 
-    name <- identifier
-    l <- leftParen
-    S.skipSpaces
-    listArgs <- (functionArg `C.sepBy` C.try do 
-                        S.skipSpaces
-                        _ <- comma
-                        S.skipSpaces)
-    S.skipSpaces
-    r <- rightParen
-    let args = A.fromFoldable listArgs
-    pure $ [ name, l] <> args <> [ r ]
 
 functionArg :: TokenParser
 functionArg = do 

@@ -1,32 +1,34 @@
 module Test.TokenizerSpec where 
 
+import Data.Identity
 import Prelude
 
+import Data.Either as Either
 import Data.String (length)
 import Test.Spec (pending, describe, it, Spec)
 import Test.Spec.Assertions (shouldEqual, shouldSatisfy)
-
-import Tokenizer as T
-import Tokenizer.Tokens (Token(..))
-import Tokenizer.Keywords as K
-import Data.Either as Either
-import Data.Identity
-
 import Text.Parsing.Parser as P
+import Tokenizer as T
 import Tokenizer.Identifiers as I
+import Tokenizer.Keywords as K
+import Tokenizer.Tokens (Token(..))
 
 
 spec :: Spec Unit
 spec = describe "Testing tokenizer" do
     describe "individual token parsing" do
+        describe "subquery" do 
+            it "mix of keywords, identifiers, and constants" do 
+                P.runParserT "(SELECT hello 5 )" T.subQuery `shouldEqual` Identity (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
+               -- T.tokenize "(SELECT hello 5 )" `shouldEqual` (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
         describe "function" do 
             it "with one arg" do 
-                T.tokenize "COUNT(sid)" `shouldEqual` (Either.Right $ [Identifier "COUNT", LeftParen, Identifier "sid", RightParen])
+                T.tokenize "COUNT  (sid)" `shouldEqual` (Either.Right $ [Identifier "COUNT", LeftParen, Identifier "sid", RightParen])
             it "with two args" do 
                 T.tokenize "COUNT(  sid  , bid )" `shouldEqual` (Either.Right $ 
                                             [ Identifier "COUNT", LeftParen, Identifier "sid", Identifier "bid", RightParen])
         describe "comments" do
-            describe "line" do 
+            describe "line" do
                 let comment = "  whatever it takes "
                 it "followed by newline" do 
                     T.runToken ("--" <> comment <> "\n") `shouldEqual` (Either.Right $ LineComment comment)
@@ -100,10 +102,12 @@ spec = describe "Testing tokenizer" do
                 T.runToken "join" `shouldEqual` (Either.Right Join)
             it "on" do 
                 T.runToken "on" `shouldEqual` (Either.Right On)
+            it "as" do 
+                T.runToken "as" `shouldEqual` (Either.Right As)
     describe "all tokens together" do 
         it "keyword tokens" do 
             let input = "SELECT FROM WHERE GROUP BY HAVING IN DISTINCT LIMIT ORDER BY ASC DESC UNION INTERSECT ALL LEFT RIGHT" <>
-                        " INNER OUTER NATURAL JOIN ON iDenTifier"
+                        " INNER OUTER NATURAL JOIN ON iDenTifier AS"
                 result = T.tokenize input
             result `shouldEqual` Either.Right
                     [ Select
@@ -128,6 +132,7 @@ spec = describe "Testing tokenizer" do
                     , Join
                     , On
                     , Identifier "iDenTifier"
+                    , As
                     ]
         it "allows whitespace at the beginning and end" do
             let input = "  SELECT FROM WHERE GROUP BY   "

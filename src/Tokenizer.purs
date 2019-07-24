@@ -1,6 +1,7 @@
 module Tokenizer 
     ( tokenize
     , runToken
+    , subQuery
     ) where 
 
 
@@ -34,6 +35,40 @@ runToken str =
     let Identity result = P.runParserT str token
     in result
 
+subQuery :: Parser
+subQuery = do 
+    l <- I.leftParen
+    S.skipSpaces
+    ts <- do 
+        S.skipSpaces
+        ts <- (A.many (try do
+            tArray <- actualTokens
+            U.skipSpaces   -- discards required whitespace between tokens
+            pure tArray))
+        let flatTs = A.concat ts 
+        t <- C.optionMaybe (try actualTokens)  
+        case t of                       
+            Nothing -> do               
+                pure $ A.concat [flatTs]    
+            Just last -> do             
+                pure $ A.concat [flatTs, last]
+    S.skipSpaces
+    --r <- I.rightParen
+    pure $ A.concat [[l], ts] --, [r]]
+
+    where actualTokens = do
+                maybeFunction <- C.optionMaybe <<< try $ function -- again, for maximum munch, the function is lexed before the identifier
+                tArray <- case maybeFunction of
+                    Just fn -> pure fn
+                    Nothing -> do 
+                        maybeSubquery <- C.optionMaybe <<< try $ subQuery
+                        case maybeSubquery of 
+                            Just qs -> pure qs
+                            Nothing -> do 
+                                t <- token
+                                pure [t]
+                pure tArray
+
 tokens :: Parser 
 tokens = do 
     S.skipSpaces
@@ -51,13 +86,20 @@ tokens = do
             S.eof
             pure $ A.concat [flatTs, last]
 
+    {-Even though it's limiting to force functions and subqueries to look a particular way during the lexing phase, it simplifies 
+    things greatly, since the general rule is that separation is by whitespace. Only in special situations is the 
+    separation by commas and parentheses, and hence they are lexed as such. -}
     where actualTokens = do
-                maybeFunction <- C.optionMaybe <<< try $ I.function
+                maybeFunction <- C.optionMaybe <<< try $ function -- again, for maximum munch, the function is lexed before the identifier
                 tArray <- case maybeFunction of
                     Just fn -> pure fn
                     Nothing -> do 
-                        t <- token
-                        pure [t]
+                        maybeSubquery <- C.optionMaybe <<< try $ subQuery
+                        case maybeSubquery of 
+                            Just qs -> pure qs
+                            Nothing -> do 
+                                t <- token
+                                pure [t]
                 pure tArray
 
 
@@ -80,6 +122,7 @@ token =
                 , I.comma
                 , I.lineComment
                 , I.blockComment
+                , K.as
                 ]
             , operatorParsers
             ]
@@ -132,3 +175,17 @@ token =
                     , K.select
                     ]
     
+function :: Parser
+function = do 
+    name <- I.identifier
+    S.skipSpaces
+    l <- I.leftParen
+    S.skipSpaces
+    listArgs <- (I.functionArg `C.sepBy` C.try do 
+                        S.skipSpaces
+                        _ <- I.comma
+                        S.skipSpaces)
+    S.skipSpaces
+    r <- I.rightParen
+    let args = A.fromFoldable listArgs
+    pure $ [ name, l] <> args <> [ r ]

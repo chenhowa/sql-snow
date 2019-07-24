@@ -21,6 +21,7 @@ module Tokenizer.Keywords
     , join 
     , on
     , runKeyword
+    , as
     ) where 
 
 import Prelude
