@@ -1,7 +1,7 @@
 module Tokenizer 
     ( tokenize
     , runToken
-    , subQuery
+    --, subQuery
     ) where 
 
 
@@ -35,7 +35,24 @@ runToken str =
     let Identity result = P.runParserT str token
     in result
 
-subQuery :: Parser
+token :: TokenParser 
+token = (do try separatorToken <|> nonSeparatorToken )
+
+separatorToken :: TokenParser
+separatorToken = do 
+        try I.whiteSpace
+    <|> try I.comma
+    <|> try I.leftParen
+    <|> try I.rightParen
+    <|> try I.lineComment
+    <|> try I.blockComment
+
+separators :: Parser
+separators = do 
+    s <- A.some <<< try $ separatorToken 
+    pure s
+
+{-subQuery :: Parser
 subQuery = do 
     l <- I.leftParen
     S.skipSpaces
@@ -65,46 +82,29 @@ subQuery = do
                         case maybeSubquery of 
                             Just qs -> pure qs
                             Nothing -> do 
-                                t <- token
+                                t <- nonSeparatorToken
                                 pure [t]
-                pure tArray
+                pure tArray-}
 
 tokens :: Parser 
 tokens = do 
-    S.skipSpaces
+    initialSeps <- A.many $ try separatorToken
     ts <- (A.many (try do
-        tArray <- actualTokens
-        U.skipSpaces   -- discards required whitespace between tokens
-        pure tArray))
+        t <- nonSeparatorToken
+        seps <- separators   -- read multiple separators
+        pure $ [t] <> seps))
     let flatTs = A.concat ts 
-    t <- C.optionMaybe (try actualTokens)  -- We need to use optionMaybe with try, because if the parse fails but consumes no input, 
+    t <- C.optionMaybe (try nonSeparatorToken)  -- We need to use optionMaybe with try, because if the parse fails but consumes no input, 
     case t of                       -- what result is extracted into t? Nothing can be. Therefore the try basically is ignored,
         Nothing -> do               -- and the parse is regarded as having failed. Also, note that this section relies on
             S.eof                   -- 'maximum munch' being used. For example, if the input was "inner", but "in" was parsed before 
-            pure $ A.concat [flatTs]    -- "inner", then "in" would match, and the parse for the EOF would fail, so the whole parse 
+            pure $ A.concat [initialSeps, flatTs]    -- "inner", then "in" would match, and the parse for the EOF would fail, so the whole parse 
         Just last -> do             -- would fail.
             S.eof
-            pure $ A.concat [flatTs, last]
+            pure $ A.concat [initialSeps, flatTs, [last]]
 
-    {-Even though it's limiting to force functions and subqueries to look a particular way during the lexing phase, it simplifies 
-    things greatly, since the general rule is that separation is by whitespace. Only in special situations is the 
-    separation by commas and parentheses, and hence they are lexed as such. -}
-    where actualTokens = do
-                maybeFunction <- C.optionMaybe <<< try $ function -- again, for maximum munch, the function is lexed before the identifier
-                tArray <- case maybeFunction of
-                    Just fn -> pure fn
-                    Nothing -> do 
-                        maybeSubquery <- C.optionMaybe <<< try $ subQuery
-                        case maybeSubquery of 
-                            Just qs -> pure qs
-                            Nothing -> do 
-                                t <- token
-                                pure [t]
-                pure tArray
-
-
-token :: TokenParser
-token = 
+nonSeparatorToken :: TokenParser
+nonSeparatorToken = 
     let parsers = A.concat   -- these parsers have been ordered intentionally so that the "maximum munch" principle holds.
             [ joinParsers    -- that is, given the text "inner"m "inner" should be parsed instead of "in", so the `Inner` parser comes first.
             , setOpParsers   -- It would be nice if there were a better way to enforce 'maximum munch' (i.e., programmatically'), but 
@@ -117,11 +117,6 @@ token =
             , groupParsers
             , selectParsers
             ,   [ I.constant
-                , I.leftParen 
-                , I.rightParen
-                , I.comma
-                , I.lineComment
-                , I.blockComment
                 , K.as
                 ]
             , operatorParsers
@@ -174,7 +169,8 @@ token =
                     , K.where_ 
                     , K.select
                     ]
-    
+
+{-
 function :: Parser
 function = do 
     name <- I.identifier
@@ -189,3 +185,4 @@ function = do
     r <- I.rightParen
     let args = A.fromFoldable listArgs
     pure $ [ name, l] <> args <> [ r ]
+-}

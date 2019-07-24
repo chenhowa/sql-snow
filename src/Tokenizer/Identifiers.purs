@@ -7,6 +7,7 @@ module Tokenizer.Identifiers
     , lineComment
     , blockComment
     , functionArg
+    , whiteSpace
     ) where 
 
 import Data.Identity
@@ -81,3 +82,8 @@ functionArg :: TokenParser
 functionArg = do 
         C.try identifier
     <|> C.try constant
+
+whiteSpace :: TokenParser
+whiteSpace = do 
+    _ <- U.whiteSpace
+    pure WhiteSpace

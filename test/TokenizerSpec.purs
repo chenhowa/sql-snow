@@ -19,14 +19,29 @@ spec = describe "Testing tokenizer" do
     describe "individual token parsing" do
         describe "subquery" do 
             it "mix of keywords, identifiers, and constants" do 
-                P.runParserT "(SELECT hello 5 )" T.subQuery `shouldEqual` Identity (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
-               -- T.tokenize "(SELECT hello 5 )" `shouldEqual` (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
+                --P.runParserT "(SELECT hello 5 )" T.subQuery `shouldEqual` Identity (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
+               T.tokenize "(SELECT hello 5 )" `shouldEqual` (Either.Right $ 
+                                    [ LeftParen
+                                    , Select, WhiteSpace
+                                    , Identifier "hello", WhiteSpace
+                                    , Constant "5", WhiteSpace
+                                    , RightParen
+                                    ])
         describe "function" do 
             it "with one arg" do 
-                T.tokenize "COUNT  (sid)" `shouldEqual` (Either.Right $ [Identifier "COUNT", LeftParen, Identifier "sid", RightParen])
+                T.tokenize "COUNT  (sid)" `shouldEqual` (Either.Right $ 
+                                    [ Identifier "COUNT", WhiteSpace
+                                    , LeftParen
+                                    , Identifier "sid"
+                                    , RightParen])
             it "with two args" do 
                 T.tokenize "COUNT(  sid  , bid )" `shouldEqual` (Either.Right $ 
-                                            [ Identifier "COUNT", LeftParen, Identifier "sid", Identifier "bid", RightParen])
+                                            [ Identifier "COUNT"
+                                            , LeftParen, WhiteSpace
+                                            , Identifier "sid", WhiteSpace, Comma, WhiteSpace
+                                            , Identifier "bid", WhiteSpace
+                                            , RightParen
+                                            ])
         describe "comments" do
             describe "line" do
                 let comment = "  whatever it takes "
@@ -107,37 +122,43 @@ spec = describe "Testing tokenizer" do
     describe "all tokens together" do 
         it "keyword tokens" do 
             let input = "SELECT FROM WHERE GROUP BY HAVING IN DISTINCT LIMIT ORDER BY ASC DESC UNION INTERSECT ALL LEFT RIGHT" <>
-                        " INNER OUTER NATURAL JOIN ON iDenTifier AS"
+                        " INNER OUTER NATURAL JOIN ON iDenTifier AS  "
                 result = T.tokenize input
             result `shouldEqual` Either.Right
-                    [ Select
-                    , From
-                    , Where
-                    , GroupBy
-                    , Having
-                    , In 
-                    , Distinct 
-                    , Limit 
-                    , OrderBy
-                    , Ascending
-                    , Descending
-                    , Union
-                    , Intersect
-                    , All
-                    , Left 
-                    , Right 
-                    , Inner
-                    , Outer 
-                    , Natural
-                    , Join
-                    , On
-                    , Identifier "iDenTifier"
-                    , As
+                    [ Select, WhiteSpace
+                    , From, WhiteSpace
+                    , Where, WhiteSpace
+                    , GroupBy, WhiteSpace
+                    , Having, WhiteSpace
+                    , In , WhiteSpace
+                    , Distinct , WhiteSpace
+                    , Limit , WhiteSpace
+                    , OrderBy, WhiteSpace
+                    , Ascending, WhiteSpace
+                    , Descending, WhiteSpace
+                    , Union, WhiteSpace
+                    , Intersect, WhiteSpace
+                    , All, WhiteSpace
+                    , Left , WhiteSpace
+                    , Right , WhiteSpace
+                    , Inner, WhiteSpace
+                    , Outer , WhiteSpace
+                    , Natural, WhiteSpace
+                    , Join, WhiteSpace
+                    , On, WhiteSpace
+                    , Identifier "iDenTifier", WhiteSpace
+                    , As, WhiteSpace
                     ]
         it "allows whitespace at the beginning and end" do
             let input = "  SELECT FROM WHERE GROUP BY   "
                 result = T.tokenize input
-            result `shouldEqual` Either.Right [ Select, From, Where, GroupBy ]
+            result `shouldEqual` Either.Right 
+                                    [ WhiteSpace
+                                    , Select, WhiteSpace
+                                    , From, WhiteSpace
+                                    , Where, WhiteSpace
+                                    , GroupBy, WhiteSpace
+                                    ]
         it "requires whitespace between tokens" do 
             let input = "SELECTFROM"
                 result = T.tokenize input

@@ -52,6 +52,7 @@ data Token
     | Comma
     | LineComment String
     | BlockComment String
+    | WhiteSpace
 
 derive instance genericToken :: Generic Token _
 instance showToken :: Show Token where 
