@@ -45,6 +45,7 @@ data Token
     | FloatDivide
     | Modulo
     | As
+    | Identifier String
 
 derive instance genericToken :: Generic Token _
 instance showToken :: Show Token where 

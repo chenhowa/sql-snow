@@ -38,7 +38,7 @@ tokens = do
     S.skipSpaces
     ts <- (A.many (try do
         t <- token
-        U.skipSpaces
+        U.skipSpaces   -- discards required whitespace between tokens
         pure t))
     t <- C.optionMaybe (try token)  -- We need to use optionMaybe with try, because if the parse fails but consumes no input, 
     case t of                       -- what result is extracted into t? Nothing can be. Therefore the try basically is ignored,
