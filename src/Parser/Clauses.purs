@@ -17,4 +17,5 @@ import Parser.Common (ParseTree(..), Syntax(..), InputStream, Output, Parser)
 
 select :: Parser
 select = do 
+    pure $ Leaf Select
     

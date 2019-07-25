@@ -26,3 +26,4 @@ data Syntax
 type InputStream = Array Token
 type Output = ParseTree Syntax
 type Parser = P.ParserT InputStream Identity Output
+
