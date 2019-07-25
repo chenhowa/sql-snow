@@ -1,20 +1,45 @@
-module Parser.Syntax where 
+module Parser.Syntax 
+    ( select
+    , identifier 
+    , comma
+    , wildcard
+    ) where
 
 import Prelude
 import Data.List as L
+import Data.Array as A
 import Data.Identity
-import Tokenizer.Tokens (Token)
+import Tokenizer.Tokens as T
 import Text.Parsing.Parser as P
-import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
-import Data.Generic.Rep.Eq (genericEq)
+import Text.Parsing.Parser.Combinators as C
+import Parser.Common (ParseTree(..), Syntax(..), InputStream, Output, Parser, SyntaxParser)
+import Parser.Parsing as Parsing
 
+select :: SyntaxParser
+select = do 
+    _ <- Parsing.token T.Select
+    pure Select
 
-data Syntax
-    = Select 
-    | Where
-    | Identifier String
+identifier :: SyntaxParser
+identifier = do 
+    val <- Parsing.satisfy (\t -> case t of 
+                            T.Identifier x -> true
+                            _ -> false)
+    case val of 
+        T.Identifier x -> pure $ Identifier x
+        _ -> P.fail "Identifier found, then not found"
 
-derive instance syntaxGeneric :: Generic Syntax _
-instance syntaxShow :: Show Syntax where 
-    show = genericShow
+comma :: SyntaxParser
+comma = do 
+    _ <- Parsing.token T.Comma
+    pure Comma
+
+wildcard :: SyntaxParser
+wildcard = do 
+    _ <- Parsing.token T.Asterisk
+    pure Wildcard
+
+multiply :: SyntaxParser
+multiply = do 
+    _ <- Parsing.token T.Asterisk
+    pure Multiply

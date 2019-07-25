@@ -4,18 +4,21 @@ module Tokenizer.Operators
     , multiply 
     , floatDivide 
     , modulo
-
+    , equals
+    , notEquals
+    , not 
+    , and 
+    , or 
+    , lt 
+    , lte
+    , gt 
+    , gte 
     ) where 
 
 import Prelude
-import Text.Parsing.Parser.Combinators as C
-import Text.Parsing.Parser as P
 import Text.Parsing.Parser.String as S
-import Data.Array as A
-import Data.List as L
-import Control.Alt ((<|>))
-
 import Tokenizer.Tokens ( TokenParser, Token(..) )
+import Tokenizer.Utilities as U
 
 plus :: TokenParser 
 plus = do 
@@ -30,7 +33,7 @@ minus = do
 multiply :: TokenParser 
 multiply = do 
     _ <- S.string "*"
-    pure $  Multiply 
+    pure $  Asterisk 
 
 floatDivide :: TokenParser 
 floatDivide = do 
@@ -41,3 +44,48 @@ modulo :: TokenParser
 modulo = do 
     _ <- S.string "%"
     pure $  Modulo 
+
+equals :: TokenParser
+equals = do 
+    _ <- S.string "="
+    pure $ Equals
+
+notEquals :: TokenParser 
+notEquals = do 
+    _ <- S.string "!="
+    pure $ NotEquals
+
+not :: TokenParser
+not = do 
+    _ <- U.caseInsensitive "not"
+    pure $ Not
+
+and :: TokenParser 
+and = do 
+    _ <- U.caseInsensitive "and"
+    pure And
+
+or :: TokenParser
+or = do 
+    _ <- U.caseInsensitive "or"
+    pure Or
+
+lt :: TokenParser
+lt = do 
+    _ <- S.string "<"
+    pure LT 
+
+lte :: TokenParser 
+lte = do 
+    _ <- S.string "<="
+    pure LTE
+
+gt :: TokenParser 
+gt = do 
+    _ <- S.string ">"
+    pure GT 
+
+gte :: TokenParser 
+gte = do 
+    _ <- S.string ">="
+    pure GTE

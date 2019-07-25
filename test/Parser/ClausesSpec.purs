@@ -25,3 +25,11 @@ spec = describe "Clause parsing" do
 
                         )
                     )
+        it "wildcard" do 
+            P.runParserT [ Select, Asterisk ] CL.select 
+                `shouldEqual` Identity 
+                    ( Either.Right
+                        ( CO.Node CO.Select $ L.fromFoldable (CO.Leaf <$> [ CO.Wildcard ] )
+
+                        )
+                    )

@@ -77,6 +77,35 @@ spec = describe "Testing tokenizer" do
                 (T.tokenize "1hello") `shouldSatisfy` isError
             it "rejects identifiers with special characters" do 
                 (T.tokenize "he$lo") `shouldSatisfy` isError
+        describe "operators" do 
+            it "plus" do 
+                T.runToken "+" `shouldEqual` (Either.Right Plus)
+            it "minus" do
+                T.runToken "-" `shouldEqual` (Either.Right Minus)
+            it "multiply" do
+                T.runToken "*" `shouldEqual` (Either.Right Asterisk)
+            it "divide" do
+                T.runToken "/" `shouldEqual` (Either.Right FloatDivide)
+            it "modulo" do
+                T.runToken "%" `shouldEqual` (Either.Right Modulo)
+            it "equals" do
+                T.runToken "=" `shouldEqual` (Either.Right Equals)
+            it "notEquals" do
+                T.runToken "!=" `shouldEqual` (Either.Right NotEquals)
+            it "not" do 
+                T.runToken "not" `shouldEqual` (Either.Right Not)
+            it "and" do 
+                T.runToken "and" `shouldEqual` (Either.Right And)
+            it "or" do 
+                T.runToken "or" `shouldEqual` (Either.Right Or)
+            it "lt" do 
+                T.runToken "<" `shouldEqual` (Either.Right LT)
+            it "lte" do 
+                T.runToken "<=" `shouldEqual` (Either.Right LTE)
+            it "gt" do 
+                T.runToken ">" `shouldEqual` (Either.Right GT)
+            it "gte" do
+                T.runToken ">=" `shouldEqual` (Either.Right GTE)
         describe "keywords" do 
             it "select" do 
                 (T.runToken "select") `shouldEqual` (Either.Right Select)
@@ -122,10 +151,12 @@ spec = describe "Testing tokenizer" do
                 T.runToken "on" `shouldEqual` (Either.Right On)
             it "as" do 
                 T.runToken "as" `shouldEqual` (Either.Right As)
+            it "wildcard" do 
+                T.runToken "*" `shouldEqual` (Either.Right Asterisk)
     describe "all tokens together" do 
         it "keyword tokens" do 
             let input = "SELECT FROM WHERE GROUP BY HAVING IN DISTINCT LIMIT ORDER BY ASC DESC UNION INTERSECT ALL LEFT RIGHT" <>
-                        " INNER OUTER NATURAL JOIN ON iDenTifier AS  "
+                        " INNER OUTER NATURAL JOIN ON iDenTifier AS  * "
                 result = T.tokenize input
             result `shouldEqual` Either.Right
                     [ Select, WhiteSpace
@@ -151,6 +182,7 @@ spec = describe "Testing tokenizer" do
                     , On, WhiteSpace
                     , Identifier "iDenTifier", WhiteSpace
                     , As, WhiteSpace
+                    , Asterisk, WhiteSpace
                     ]
         it "allows whitespace at the beginning and end" do
             let input = "  SELECT FROM WHERE GROUP BY   "

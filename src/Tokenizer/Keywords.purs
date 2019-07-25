@@ -22,6 +22,7 @@ module Tokenizer.Keywords
     , on
     , runKeyword
     , as
+    , wildcard
     ) where 
 
 import Prelude
@@ -41,6 +42,11 @@ runKeyword :: String -> TokenParser -> E.Either P.ParseError Token
 runKeyword str parser = 
     let Identity r = P.runParserT str parser
     in r
+
+wildcard :: TokenParser
+wildcard = do 
+    _ <- S.string "*"
+    pure Asterisk
 
 select :: TokenParser
 select = do

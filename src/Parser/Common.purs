@@ -4,6 +4,8 @@ module Parser.Common
     , InputStream 
     , Output
     , Parser
+    , SyntaxParser
+    , SyntaxArrayParser
     ) where 
 
 import Prelude
@@ -21,6 +23,9 @@ data Syntax
     = Select 
     | Where
     | Identifier String
+    | Comma
+    | Wildcard
+    | Multiply
 
 derive instance syntaxGeneric :: Generic Syntax _
 instance syntaxShow :: Show Syntax where 
@@ -53,4 +58,7 @@ instance ptEq :: Eq a => Eq (ParseTree a) where
 type InputStream = Array Token
 type Output = ParseTree Syntax
 type Parser = P.ParserT InputStream Identity Output
+type SyntaxParser = P.ParserT InputStream Identity Syntax
+type SyntaxArrayParser = P.ParserT InputStream Identity (Array Syntax)
+
 

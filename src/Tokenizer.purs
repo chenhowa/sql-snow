@@ -85,6 +85,7 @@ nonSeparatorToken =
             , selectParsers
             ,   [ I.constant
                 , K.as
+                , K.wildcard
                 ]
             , operatorParsers
             ]
@@ -109,6 +110,15 @@ nonSeparatorToken =
                     , O.floatDivide 
                     , O.modulo
                     , O.plus
+                    , O.equals
+                    , O.notEquals
+                    , O.not 
+                    , O.and
+                    , O.or
+                    , O.gte  -- gte and lte come first for maximum munch
+                    , O.lte
+                    , O.lt 
+                    , O.gt 
                     ]
 
         orderParsers :: Array TokenParser 

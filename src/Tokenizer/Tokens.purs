@@ -41,7 +41,7 @@ data Token
     | On
     | Plus -- Arithmetic tokens
     | Minus
-    | Multiply
+    | Asterisk
     | FloatDivide
     | Modulo
     | As
@@ -53,6 +53,16 @@ data Token
     | LineComment String
     | BlockComment String
     | WhiteSpace
+    | Equals
+    | NotEquals
+    | Not
+    | And
+    | Or
+    | LT
+    | LTE
+    | GT
+    | GTE
+    
 
 derive instance genericToken :: Generic Token _
 instance showToken :: Show Token where 

@@ -10,11 +10,34 @@ import Data.Identity
 import Tokenizer.Tokens (Token)
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser.Combinators as C
+import Control.Alt ((<|>))
 
-import Parser.Common (ParseTree(..), Syntax(..), InputStream, Output, Parser)
+
+import Parser.Common (SyntaxArrayParser, ParseTree(..), Syntax(..), InputStream, Output, Parser)
+import Parser.Syntax as Syntax
 
 
 select :: Parser
 select = do 
-    pure $ Leaf Select
-    
+    sel <- Syntax.select
+    expr <- selectExpression
+    pure $
+        Node sel $
+            L.fromFoldable $ (Leaf <$> (expr))
+    where 
+        selectExpression :: SyntaxArrayParser
+        selectExpression = do 
+                C.try 
+                    ( do 
+                        wc <- Syntax.wildcard
+                        pure [wc]
+                    ) 
+            <|> C.try selectColumns
+        selectColumns :: SyntaxArrayParser 
+        selectColumns = do 
+            cols <- A.many $ C.try do 
+                name <- Syntax.identifier
+                comma <- Syntax.comma
+                pure name
+            final <- Syntax.identifier
+            pure $ cols <> [final]
