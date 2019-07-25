@@ -13,6 +13,7 @@ You can edit this file as you like.
     , "spec-discovery"
     , "generics-rep"
     , "profunctor-lenses"
+    , "sequences"
     ]
 , packages =
     ./packages.dhall

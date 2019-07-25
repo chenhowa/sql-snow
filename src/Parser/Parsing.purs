@@ -1,7 +1,7 @@
 module Parser.Parsing 
     ( class StreamLike
     , drop 
-    , findIndex 
+    --, findIndex 
     , null 
     , uncons
     , anyToken
@@ -22,27 +22,37 @@ import Text.Parsing.Parser.Combinators as C
 import Text.Parsing.Parser.Combinators ((<?>))
 import Text.Parsing.Parser.Pos (Position(..))
 import Data.List as L
+import Data.Sequence as S
+import Data.Tuple as T
 
 import Data.Foldable (elem, notElem)
 
 class StreamLike f where 
     drop :: forall a. Int -> f a -> f a
-    findIndex :: forall a. (a -> Boolean) -> f a -> Maybe Int
+    --findIndex :: forall a. (a -> Boolean) -> f a -> Maybe Int
     null :: forall a. f a -> Boolean
     uncons :: forall a. f a -> Maybe { head :: a, tail :: f a }
 
 
 instance arrayLikeStream :: StreamLike Array where 
     drop =  A.drop
-    findIndex = A.findIndex
+    --findIndex = A.findIndex
     null = A.null
     uncons = A.uncons
 
 instance listLikeStream :: StreamLike L.List where 
     drop = L.drop 
-    findIndex = L.findIndex 
+    --findIndex = L.findIndex 
     null = L.null 
     uncons = L.uncons
+
+instance sequenceLikeStream :: StreamLike S.Seq where 
+    drop = S.drop 
+    --findIndex = S.findIndex 
+    null = S.null 
+    uncons seq = case S.uncons seq of 
+        Nothing -> Nothing
+        Just tuple -> Just { head: T.fst tuple, tail: T.snd tuple }
 
 anyToken :: forall f a m. StreamLike f => Monad m => P.ParserT (f a) m a
 anyToken = do 

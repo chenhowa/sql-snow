@@ -116,6 +116,22 @@ let upstream =
 
 let overrides = {=}
 
-let additions = {=}
+let additions = 
+  { sequences =
+      mkPackage 
+        [ "newtype"
+        , "profunctor"
+        , "arrays" 
+        , "maybe"
+        , "unfoldable" 
+        , "lazy"
+        , "prelude" 
+        , "unsafe-coerce" 
+        , "tuples" 
+        , "partial"
+        ]
+        "https://github.com/hdgarrood/purescript-sequences.git"
+        "v2.1.0"
+  }
 
 in  upstream // overrides // additions
