@@ -1,6 +1,6 @@
 module Parser.Clauses 
     ( select
-
+    , where_
     ) where
 
 import Prelude
@@ -41,3 +41,14 @@ select = do
                 pure name
             final <- Syntax.identifier
             pure $ cols <> [final]
+
+where_ :: Parser
+where_ = do 
+    wh <- Syntax.where_
+    col <- Syntax.identifier
+    op <- Syntax.operator
+    con <- Syntax.constant
+    pure $ 
+        Node wh $ 
+            L.fromFoldable $ (Leaf <$> [col, op, con])
+

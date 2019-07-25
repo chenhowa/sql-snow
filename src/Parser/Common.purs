@@ -8,15 +8,16 @@ module Parser.Common
     , SyntaxArrayParser
     ) where 
 
-import Prelude
-import Data.List as L
 import Data.Identity
-import Tokenizer.Tokens (Token)
-import Text.Parsing.Parser as P
-import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
-import Data.Generic.Rep.Eq (genericEq)
+import Prelude
+
 import Data.Foldable (foldl)
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Eq (genericEq)
+import Data.Generic.Rep.Show (genericShow)
+import Data.List as L
+import Text.Parsing.Parser as P
+import Tokenizer.Tokens (Token(..))
 
 
 data Syntax
@@ -26,6 +27,20 @@ data Syntax
     | Comma
     | Wildcard
     | Multiply
+    | Plus 
+    | Minus
+    | FloatDivide 
+    | Modulo 
+    | Equals 
+    | NotEquals
+    | Not 
+    | And 
+    | Or 
+    | LT 
+    | LTE
+    | GT 
+    | GTE
+    | Constant String
 
 derive instance syntaxGeneric :: Generic Syntax _
 instance syntaxShow :: Show Syntax where 

@@ -33,3 +33,10 @@ spec = describe "Clause parsing" do
 
                         )
                     )
+    describe "where" do 
+        it "comparing one column to constant" do
+            P.runParserT [ Where, Identifier "age", LT, Constant "5" ] CL.where_
+                `shouldEqual` Identity
+                    ( Either.Right 
+                        (CO.Node CO.Where $ L.fromFoldable (CO.Leaf <$> [ CO.Identifier "age", CO.LT, CO.Constant "5" ]))
+                    )
