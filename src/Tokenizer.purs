@@ -2,6 +2,7 @@ module Tokenizer
     ( tokenize
     , runToken
     --, subQuery
+    , separators
     ) where 
 
 

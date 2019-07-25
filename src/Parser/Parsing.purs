@@ -48,7 +48,7 @@ instance listLikeStream :: StreamLike L.List where
 
 instance sequenceLikeStream :: StreamLike S.Seq where 
     drop = S.drop 
-    --findIndex = S.findIndex 
+    --findIndex = S.findIndex -- Unclear how to implement this.
     null = S.null 
     uncons seq = case S.uncons seq of 
         Nothing -> Nothing

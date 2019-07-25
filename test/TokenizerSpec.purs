@@ -17,6 +17,9 @@ import Tokenizer.Tokens (Token(..))
 spec :: Spec Unit
 spec = describe "Testing tokenizer" do
     describe "individual token parsing" do
+        describe "separators" do 
+            it "whitespace" do 
+                P.runParserT "   " T.separators `shouldEqual` Identity (Either.Right $ [WhiteSpace])
         describe "subquery" do 
             it "mix of keywords, identifiers, and constants" do 
                 --P.runParserT "(SELECT hello 5 )" T.subQuery `shouldEqual` Identity (Either.Right $ [LeftParen, Select, Identifier "hello", Constant "5", RightParen])
