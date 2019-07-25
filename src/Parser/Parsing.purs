@@ -1,5 +1,5 @@
 module Parser.Parsing 
-    ( class ArrayLike
+    ( class StreamLike
     , drop 
     , findIndex 
     , null 
@@ -25,26 +25,26 @@ import Data.List as L
 
 import Data.Foldable (elem, notElem)
 
-class ArrayLike f where 
+class StreamLike f where 
     drop :: forall a. Int -> f a -> f a
     findIndex :: forall a. (a -> Boolean) -> f a -> Maybe Int
     null :: forall a. f a -> Boolean
     uncons :: forall a. f a -> Maybe { head :: a, tail :: f a }
 
 
-instance arrayLikeArray :: ArrayLike Array where 
+instance arrayLikeStream :: StreamLike Array where 
     drop =  A.drop
     findIndex = A.findIndex
     null = A.null
     uncons = A.uncons
 
-instance listLikeArray :: ArrayLike L.List where 
+instance listLikeStream :: StreamLike L.List where 
     drop = L.drop 
     findIndex = L.findIndex 
     null = L.null 
     uncons = L.uncons
 
-anyToken :: forall f a m. ArrayLike f => Monad m => P.ParserT (f a) m a
+anyToken :: forall f a m. StreamLike f => Monad m => P.ParserT (f a) m a
 anyToken = do 
     input <- ST.gets \(P.ParseState input _ _) -> input
     case uncons input of
@@ -56,26 +56,26 @@ anyToken = do
                     true
             pure head
 
-satisfy :: forall f a m. ArrayLike f => Show a => Monad m => (a -> Boolean) -> P.ParserT (f a) m a
+satisfy :: forall f a m. StreamLike f => Show a => Monad m => (a -> Boolean) -> P.ParserT (f a) m a
 satisfy pred = C.tryRethrow do
   t <- anyToken
   if pred t then pure t
          else P.fail $ "Token '" <> show t <> "' did not satisfy predicate"
 
 
-token :: forall f a m. ArrayLike f => Eq a => Show a => Monad m => a -> P.ParserT (f a) m a
+token :: forall f a m. StreamLike f => Eq a => Show a => Monad m => a -> P.ParserT (f a) m a
 token t = satisfy (_ == t) <?> show t
 
 incPositionArray :: Position -> Int -> Position
 incPositionArray (Position old) inc = Position $ old { column = (old.column + inc) } 
 
-eof :: forall f a m. ArrayLike f => Eq a => Show a => Monad m => P.ParserT (f a) m Unit
+eof :: forall f a m. StreamLike f => Eq a => Show a => Monad m => P.ParserT (f a) m Unit
 eof = do
     input <- ST.gets \(P.ParseState input _ _) -> input
     unless (null input) (P.fail "Expected EOF")
 
-oneOf :: forall f a m. ArrayLike f => Show a => Eq a => Monad m => Array a -> P.ParserT (f a) m a
+oneOf :: forall f a m. StreamLike f => Show a => Eq a => Monad m => Array a -> P.ParserT (f a) m a
 oneOf ss = satisfy (flip elem ss) <?> ("one of " <> show ss)
 
-noneOf :: forall f a m. ArrayLike f => Show a => Eq a => Monad m => Array a -> P.ParserT (f a) m a
+noneOf :: forall f a m. StreamLike f => Show a => Eq a => Monad m => Array a -> P.ParserT (f a) m a
 noneOf ss = satisfy (flip notElem ss) <?> ("none of " <> show ss)
